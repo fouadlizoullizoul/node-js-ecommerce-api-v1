@@ -1,1 +1,1 @@
-# node-express-jwt-auth
+# node-js-ecommerce-api-v1
