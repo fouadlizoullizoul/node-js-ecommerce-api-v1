@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server"
+    "start:dev": "nodemon server",
+    "start:prod": "cross-env NODE_ENV=production node index.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,5 +18,8 @@
     "morgan": "^1.10.0",
     "slugify": "^1.6.6",
     "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }
