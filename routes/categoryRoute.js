@@ -1,5 +1,4 @@
 const express = require("express");
-const router = express.Router();
 const {
   getCategoryValidator,
   createCategoryValidator,
@@ -13,6 +12,8 @@ const {
   updateCategory,
   deleteCategory,
 } = require("../services/categoryService");
+
+const router = express.Router();
 
 router
   .route("/")

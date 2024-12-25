@@ -1,7 +1,7 @@
-const Category = require("../models/categoryModel");
 const slugify = require("slugify");
 const asyncHandler = require("express-async-handler");
 const mongoose = require("mongoose");
+const Category = require("../models/categoryModel");
 const ApiError =require("../utils/ApiError");
 //@desc Get all Categories
 //@route GET /api/v1/categories
@@ -17,7 +17,7 @@ exports.getCategories = asyncHandler(async (req, res) => {
 //@route GET /api/v1/categories/:id
 //@access Public
 exports.getCategory = asyncHandler(async (req, res,next) => {
-  const id = req.params.id;
+  const {id} = req.params;
   if(!mongoose.Types.ObjectId.isValid(id)){
     return next(new ApiError(404,`category not found with id ${id}`));
   }
@@ -32,7 +32,7 @@ exports.getCategory = asyncHandler(async (req, res,next) => {
 //@route POST /api/v1/categories
 //@access Private
 exports.createCategory = asyncHandler(async (req, res) => {
-  const name = req.body.name;
+  const {name} = req.body;
   const category = await Category.create({
     name,
     slug: slugify(name),
@@ -44,11 +44,11 @@ exports.createCategory = asyncHandler(async (req, res) => {
 //@route PUT /api/v1/categories/:id
 //@access Private
 exports.updateCategory = asyncHandler(async (req, res,next) => {
-  const id = req.params.id;
+  const {id} = req.params;
   if(!mongoose.Types.ObjectId.isValid(id)){
     return next(new ApiError(400,`category not found with id ${id}`));
   }
-  const name = req.body.name;
+  const {name} = req.body;
   const category = await Category.findOneAndUpdate(
     { _id: id },
     { name, slug: slugify(name) },
@@ -64,7 +64,7 @@ exports.updateCategory = asyncHandler(async (req, res,next) => {
 //@access Private
 
 exports.deleteCategory = asyncHandler(async (req, res,next) => {
-  const id = req.params.id;
+  const {id} = req.params;
   if(!mongoose.Types.ObjectId.isValid(id)){
     return next(new ApiError(400,`category not found with id ${id}`));
   }
