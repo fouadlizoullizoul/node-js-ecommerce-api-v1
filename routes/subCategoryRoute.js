@@ -5,9 +5,11 @@ const {
   getSubCategoryById,
   updateSubCategory,
   deleteSubCategory,
+  setCategoryIdToBody,
+  createFilterObj
 } = require("../services/subCategoryService");
 
-const router = express.Router();
+
 
 const {
   createSubCategoryValidator,
@@ -15,12 +17,15 @@ const {
   deleteSubCategoryValidator,
   updateSubCategoryValidator,
 } = require("../utils/validators/subCategoryValidator");
+//mergeParmas: Allow us to access the params from the parent router 
+//ex /api/v1/categories/:categoryId/subcategories we need to access categoryId from category router
+const router = express.Router({mergeParams:true});
 
 // Create a new sub-category
 router
   .route("/")
-  .post(createSubCategoryValidator, createSubCategory)
-  .get(getSubCategories);
+  .post(setCategoryIdToBody,createSubCategoryValidator, createSubCategory)
+  .get(createFilterObj,getSubCategories);
 router
   .route("/:id")
   .get(getSubCategoryValidator, getSubCategoryById)

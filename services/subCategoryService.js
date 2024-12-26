@@ -4,6 +4,13 @@ const mongoose = require("mongoose");
 const SubCategory = require("../models/subCategoryModel");
 const ApiError = require("../utils/ApiError");
 
+
+exports.setCategoryIdToBody = (req, res, next) => {
+      //Nested route
+    if (!req.body.category) req.body.category = req.params.categoryId;
+    next()
+}
+
 //@desc Create a new SubCategory
 //@route POST /api/v1/subCategories
 //@access Private
@@ -16,6 +23,17 @@ exports.createSubCategory = asyncHandler(async (req, res) => {
   });
   res.status(201).json({ status: "success", data: subCategory });
 });
+
+exports.createFilterObj =(req,res,next)=>{
+    let filterObject = {};
+    if (req.params.categoryId) {
+      filterObject = { category: req.params.categoryId };
+    }
+    req.filterObj = filterObject;
+    next();
+}
+
+
 // @desc  Get all SubCategory
 // @route GET /api/v1/subCategories
 // @access Public
@@ -23,7 +41,10 @@ exports.getSubCategories = asyncHandler(async (req, res) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 5;
   const skip = (page - 1) * limit;
-  const subcategories = await SubCategory.find({}).skip(skip).limit(limit);
+  const subcategories = await SubCategory.find(req.filterObj)
+    .skip(skip)
+    .limit(limit);
+  //   .populate({path:'category',select:'name -_id'});
   res.status(200).json({
     status: "success",
     results: subcategories.length,
@@ -57,7 +78,7 @@ exports.getSubCategoryById = asyncHandler(async (req, res, next) => {
 
 exports.updateSubCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const {name,category} =req.body
+  const { name, category } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return next(new ApiError(404, "Subcategory not found"));
@@ -65,7 +86,7 @@ exports.updateSubCategory = asyncHandler(async (req, res, next) => {
 
   const updatedSubCategory = await SubCategory.findByIdAndUpdate(
     id,
-    {name,slug:slugify(name),category},
+    { name, slug: slugify(name), category },
     { new: true }
   );
 
