@@ -7,8 +7,11 @@ const morgan = require("morgan");
 dotenv.config({ path: "./config.env" });
 const globalError = require("./middlewares/errorMiddleware");
 const dbConnection = require("./config/database");
+//Route
 const categoryRoute = require("./routes/categoryRoute");
 const subCategoryRoute = require("./routes/subCategoryRoute");
+const brandsRoute = require("./routes/brandRoute");
+
 const ApiError = require("./utils/ApiError");
 
 //db connection
@@ -26,7 +29,7 @@ if (process.env.NODE_ENV === "development") {
 // Mount Routes
 app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/subcategories", subCategoryRoute);
-
+app.use("/api/v1/brands", brandsRoute);
 app.all("*", (req, res, next) => {
   next(new ApiError(400, `Can't find ${req.originalUrl} on this server!`));
 });
