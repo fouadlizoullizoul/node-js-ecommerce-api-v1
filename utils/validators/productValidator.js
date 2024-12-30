@@ -1,5 +1,6 @@
 const { check } = require("express-validator");
 const validatorMiddleware = require("../../middlewares/validatorMiddleware");
+const Category = require("../../models/categoryModel");
 
 exports.createProductValidator = [
   check("title")
@@ -41,7 +42,15 @@ exports.createProductValidator = [
     .notEmpty()
     .withMessage("Product must be belong to category")
     .isMongoId()
-    .withMessage("Invalid ID format"),
+    .withMessage("Invalid ID format")
+    .custom((categoryId)=>
+      Category.findById(categoryId)
+       .then((category) => {
+          if (!category) {
+            throw new Error(`Category not found with id ${categoryId}`);
+          }
+        })
+    ),
   check("subcategory").optional().isMongoId().withMessage("Invalid ID format"),
   check("brand").optional().isMongoId().withMessage("Invalid ID format"),
   check("ratingsAverage")
