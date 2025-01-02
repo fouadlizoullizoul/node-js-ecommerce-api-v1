@@ -22,11 +22,18 @@ exports.getProducts = asyncHandler(async (req, res) => {
 
 
   //Build query
-  const mongooseQuery =Product.find(JSON.parse(queryStr))
+  let mongooseQuery =Product.find(JSON.parse(queryStr))
   .skip(skip)
   .limit(limit)
   .populate({ path: "category", select: "name -_id" });
 
+  //3)Sorting
+  if(req.query.sort){
+    const sortBy=req.query.sort.split(',').join(' ')
+    mongooseQuery=mongooseQuery.sort(sortBy)
+  }else{
+    mongooseQuery=mongooseQuery.sort('-createdAt')
+  }
   //Execute query
   const products = await mongooseQuery
   res.status(200).json({status: "success",results: products.length,page,data: products,});
