@@ -34,6 +34,13 @@ exports.getProducts = asyncHandler(async (req, res) => {
   }else{
     mongooseQuery=mongooseQuery.sort('-createdAt')
   }
+  //4) Fields Limiting
+  if(req.query.fields){
+    const fields=req.query.fields.split(',').join(' ')
+    mongooseQuery=mongooseQuery.select(fields)
+  }else{
+    mongooseQuery=mongooseQuery.select('-__v')
+  }
   //Execute query
   const products = await mongooseQuery
   res.status(200).json({status: "success",results: products.length,page,data: products,});
