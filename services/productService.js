@@ -41,6 +41,17 @@ exports.getProducts = asyncHandler(async (req, res) => {
   }else{
     mongooseQuery=mongooseQuery.select('-__v')
   }
+  //5)Seachring
+  const keyword = req.query.keyword?.trim()
+  if(keyword){
+    const query = {
+      $or: [
+          { title: { $regex: keyword, $options: "i" } },
+          { description: { $regex: keyword, $options: "i" } }
+      ]
+  }
+    mongooseQuery=mongooseQuery.find(query)
+  }
   //Execute query
   const products = await mongooseQuery
   res.status(200).json({status: "success",results: products.length,page,data: products,});
