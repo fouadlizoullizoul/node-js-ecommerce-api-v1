@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const Product = require("../models/productModel");
 const ApiError = require("../utils/ApiError");
 const ApiFeatures = require("../utils/ApiFeatures");
+const factory = require('./handlersFactory')
+
 //@desc Get all Products
 //@route GET /api/v1/products
 //@access Public
@@ -54,36 +56,10 @@ exports.createProduct = asyncHandler(async (req, res) => {
 //@desc Update Product by ID
 //@route PUT /api/v1/products/:id
 //@access Private
-exports.updateProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  if (req.body.title) {
-    req.body.slug = slugify(req.body.title);
-  }
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return next(new ApiError(400, `Product not found with id ${id}`));
-  }
-  const product = await Product.findOneAndUpdate({ _id: id }, req.body, {
-    new: true,
-  });
-  if (!product) {
-    return next(new ApiError(404, `Product not found with id ${id}`));
-  }
-  res.status(200).json({ status: "success", data: product });
-});
+exports.updateProduct = factory.updateOne(Product);
+
 //@desc Delete Product by ID
 //@route DELETE /api/v1/products/:id
 //@access Private
+exports.deleteProduct=factory.deleteOne(Product)
 
-exports.deleteProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return next(new ApiError(400, `Product not found with id ${id}`));
-  }
-  const product = await Product.findByIdAndDelete(id);
-  if (!product) {
-    return next(new ApiError(404, `Product not found with id ${id}`));
-  }
-  res
-    .status(200)
-    .json({ status: "success", message: "Product deleted successfully" });
-});

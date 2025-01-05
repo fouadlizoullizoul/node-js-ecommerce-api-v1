@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const SubCategory = require("../models/subCategoryModel");
 const ApiError = require("../utils/ApiError");
 const ApiFeatures = require("../utils/ApiFeatures");
+const factory = require('./handlersFactory')
 
 
 exports.setCategoryIdToBody = (req, res, next) => {
@@ -84,43 +85,9 @@ exports.getSubCategoryById = asyncHandler(async (req, res, next) => {
 // @route PUT /api/v1/subCategories/:id
 // @access Private
 
-exports.updateSubCategory = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const { name, category } = req.body;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return next(new ApiError(404, "Subcategory not found"));
-  }
-
-  const updatedSubCategory = await SubCategory.findByIdAndUpdate(
-    id,
-    { name, slug: slugify(name), category },
-    { new: true }
-  );
-
-  if (!updatedSubCategory) {
-    return next(new ApiError(404, "Subcategory not found"));
-  }
-
-  res.status(200).json({ status: "success", data: updatedSubCategory });
-});
+exports.updateSubCategory = factory.updateOne(SubCategory)
 
 //@desc Delete SubCategory
 //@route DELETE /api/v1/subCategories/:id
 //@access Private
-
-exports.deleteSubCategory = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return next(new ApiError(404, "Subcategory not found"));
-  }
-
-  const deletedSubCategory = await SubCategory.findByIdAndDelete(id);
-
-  if (!deletedSubCategory) {
-    return next(new ApiError(404, "Subcategory not found"));
-  }
-
-  res.status(200).json({ status: "success", data: deletedSubCategory });
-});
+exports.deleteSubCategory = factory.deleteOne(SubCategory)

@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const Category = require("../models/categoryModel");
 const ApiError =require("../utils/ApiError");
 const ApiFeatures = require("../utils/ApiFeatures");
+const factory = require('./handlersFactory')
+
 //@desc Get all Categories
 //@route GET /api/v1/categories
 //@access Public
@@ -52,34 +54,10 @@ exports.createCategory = asyncHandler(async (req, res) => {
 //@desc Update Category by ID
 //@route PUT /api/v1/categories/:id
 //@access Private
-exports.updateCategory = asyncHandler(async (req, res,next) => {
-  const {id} = req.params;
-  if(!mongoose.Types.ObjectId.isValid(id)){
-    return next(new ApiError(400,`category not found with id ${id}`));
-  }
-  const {name} = req.body;
-  const category = await Category.findOneAndUpdate(
-    { _id: id },
-    { name, slug: slugify(name) },
-    { new: true }
-  );
-  if (!category) {
-    return next(new ApiError(404,`category not found with id ${id}`));
-  }
-  res.status(200).json({status: 'success',data: category });
-});
+exports.updateCategory = factory.updateOne(Category);
+
 //@desc Delete Category by ID
 //@route DELETE /api/v1/categories/:id
 //@access Private
+exports.deleteCategory = factory.deleteOne(Category)
 
-exports.deleteCategory = asyncHandler(async (req, res,next) => {
-  const {id} = req.params;
-  if(!mongoose.Types.ObjectId.isValid(id)){
-    return next(new ApiError(400,`category not found with id ${id}`));
-  }
-  const category = await Category.findByIdAndDelete(id);
-  if (!category) {
-    return next(new ApiError(404,`category not found with id ${id}`));
-  }
-  res.status(200).json({ status: 'success',message: "Category deleted successfully" });
-});

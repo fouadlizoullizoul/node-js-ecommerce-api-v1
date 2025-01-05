@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const Brand = require("../models/brandModel");
 const ApiError =require("../utils/ApiError");
 const ApiFeatures = require("../utils/ApiFeatures");
+const factory = require('./handlersFactory')
 //@desc Get all Brands
 //@route GET /api/v1/brands
 //@access Public
@@ -52,34 +53,11 @@ exports.createBrand = asyncHandler(async (req, res) => {
 //@desc Update Brand by ID
 //@route PUT /api/v1/brands/:id
 //@access Private
-exports.updateBrand = asyncHandler(async (req, res,next) => {
-  const {id} = req.params;
-  if(!mongoose.Types.ObjectId.isValid(id)){
-    return next(new ApiError(400,`brand not found with id ${id}`));
-  }
-  const {name} = req.body;
-  const brand = await Brand.findOneAndUpdate(
-    { _id: id },
-    { name, slug: slugify(name) },
-    { new: true }
-  );
-  if (!brand) {
-    return next(new ApiError(404,`brand not found with id ${id}`));
-  }
-  res.status(200).json({status: 'success',data: brand });
-});
+exports.updateBrand = factory.updateOne(Brand);
+
 //@desc Delete Brand by ID
 //@route DELETE /api/v1/brands/:id
 //@access Private
 
-exports.deleteBrand = asyncHandler(async (req, res,next) => {
-  const {id} = req.params;
-  if(!mongoose.Types.ObjectId.isValid(id)){
-    return next(new ApiError(400,`brand not found with id ${id}`));
-  }
-  const brand = await Brand.findByIdAndDelete(id);
-  if (!brand) {
-    return next(new ApiError(404,`brand not found with id ${id}`));
-  }
-  res.status(200).json({ status: 'success',message: "Brand deleted successfully" });
-});
+exports.deleteBrand=factory.deleteOne(Brand)
+
