@@ -10,17 +10,19 @@ const ApiFeatures = require("../utils/ApiFeatures");
 exports.getProducts = asyncHandler(async (req, res) => {
 
   //Build query
+  const countDocuments = await Product.countDocuments();
   const apiFeatures = new ApiFeatures(Product.find(), req.query)
     .filter()
     .sort()
     .limitFields()
     .search()
-    .paginate();
+    .paginate(countDocuments);
   //Execute query
-  const products = await apiFeatures.mongooseQuery;
+  const {mongooseQuery,paginationResult}=apiFeatures
+  const products = await mongooseQuery;
   res
     .status(200)
-    .json({ status: "success", results: products.length, data: products });
+    .json({ status: "success", results: products.length,paginationResult, data: products});
 });
 //@desc Get Product by ID
 //@route GET /api/v1/products/:id
