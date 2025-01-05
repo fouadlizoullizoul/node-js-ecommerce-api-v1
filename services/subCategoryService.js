@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 const mongoose = require("mongoose");
 const SubCategory = require("../models/subCategoryModel");
 const ApiError = require("../utils/ApiError");
+const ApiFeatures = require("../utils/ApiFeatures");
 
 
 exports.setCategoryIdToBody = (req, res, next) => {
@@ -38,17 +39,24 @@ exports.createFilterObj =(req,res,next)=>{
 // @route GET /api/v1/subCategories
 // @access Public
 exports.getSubCategories = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const subcategories = await SubCategory.find(req.filterObj)
-    .skip(skip)
-    .limit(limit);
+     //Build query
+     const countDocuments = await SubCategory.countDocuments();
+     const apiFeatures = new ApiFeatures(SubCategory.find(), req.query)
+       .filter()
+       .sort()
+       .limitFields()
+       .search()
+       .paginate(countDocuments);
+     //Execute query
+     const {mongooseQuery,paginationResult}=apiFeatures
+     const subcategories = await mongooseQuery;
+
+
   //   .populate({path:'category',select:'name -_id'});
   res.status(200).json({
     status: "success",
     results: subcategories.length,
-    page,
+    paginationResult,
     data: subcategories,
   });
 });

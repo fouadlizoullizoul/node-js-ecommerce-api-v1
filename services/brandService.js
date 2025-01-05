@@ -3,15 +3,23 @@ const asyncHandler = require("express-async-handler");
 const mongoose = require("mongoose");
 const Brand = require("../models/brandModel");
 const ApiError =require("../utils/ApiError");
+const ApiFeatures = require("../utils/ApiFeatures");
 //@desc Get all Brands
 //@route GET /api/v1/brands
 //@access Public
 exports.getBrands = asyncHandler(async (req, res) => {
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 5;
-  const skip = (page - 1) * limit;
-  const brands = await Brand.find({}).skip(skip).limit(limit);
-  res.status(200).json({ status: 'success',results: brands.length, page, data: brands });
+  //Build query
+  const countDocuments = await Brand.countDocuments();
+  const apiFeatures = new ApiFeatures(Brand.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .search()
+    .paginate(countDocuments);
+  //Execute query
+  const {mongooseQuery,paginationResult}=apiFeatures
+  const brands = await mongooseQuery;
+  res.status(200).json({ status: 'success',results: brands.length, paginationResult, data: brands });
 });
 
 //@desc Get Brand by ID

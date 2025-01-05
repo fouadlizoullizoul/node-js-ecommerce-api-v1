@@ -15,7 +15,7 @@ exports.getProducts = asyncHandler(async (req, res) => {
     .filter()
     .sort()
     .limitFields()
-    .search()
+    .search("Products")
     .paginate(countDocuments);
   //Execute query
   const {mongooseQuery,paginationResult}=apiFeatures
