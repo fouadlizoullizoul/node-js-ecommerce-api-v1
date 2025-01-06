@@ -17,7 +17,11 @@ exports.createSubCategoryValidator=[
     .isLength({ max: 32 })
     .withMessage("SubCategory name must be at most 32 characters long")
     .matches(/^[a-zA-Z0-9 ]*$/)
-    .withMessage("SubCategory name must contain only letters and numbers"),
+    .withMessage("SubCategory name must contain only letters and numbers")
+    .custom((val,{req})=>{
+        req.body.slug=slugify(val);
+        return true;
+    }),
     check("category")
     .notEmpty()
     .withMessage("Category  required")

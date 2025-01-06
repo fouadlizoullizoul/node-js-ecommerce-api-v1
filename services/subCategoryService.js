@@ -1,93 +1,44 @@
-const slugify = require("slugify");
-const asyncHandler = require("express-async-handler");
-const mongoose = require("mongoose");
 const SubCategory = require("../models/subCategoryModel");
-const ApiError = require("../utils/ApiError");
-const ApiFeatures = require("../utils/ApiFeatures");
-const factory = require('./handlersFactory')
-
+const factory = require("./handlersFactory");
 
 exports.setCategoryIdToBody = (req, res, next) => {
-      //Nested route
-    if (!req.body.category) req.body.category = req.params.categoryId;
-    next()
-}
+  //Nested route
+  if (!req.body.category) req.body.category = req.params.categoryId;
+  next();
+};
+
+exports.createFilterObj = (req, res, next) => {
+  let filterObject = {};
+  if (req.params.categoryId) {
+    filterObject = { category: req.params.categoryId };
+  }
+  req.filterObj = filterObject;
+  next();
+};
 
 //@desc Create a new SubCategory
 //@route POST /api/v1/subCategories
 //@access Private
-exports.createSubCategory = asyncHandler(async (req, res) => {
-  const { name, category } = req.body;
-  const subCategory = await SubCategory.create({
-    name,
-    slug: slugify(name),
-    category,
-  });
-  res.status(201).json({ status: "success", data: subCategory });
-});
-
-exports.createFilterObj =(req,res,next)=>{
-    let filterObject = {};
-    if (req.params.categoryId) {
-      filterObject = { category: req.params.categoryId };
-    }
-    req.filterObj = filterObject;
-    next();
-}
-
+exports.createSubCategory = factory.createOne(SubCategory);
 
 // @desc  Get all SubCategory
 // @route GET /api/v1/subCategories
 // @access Public
-exports.getSubCategories = asyncHandler(async (req, res) => {
-     //Build query
-     const countDocuments = await SubCategory.countDocuments();
-     const apiFeatures = new ApiFeatures(SubCategory.find(), req.query)
-       .filter()
-       .sort()
-       .limitFields()
-       .search()
-       .paginate(countDocuments);
-     //Execute query
-     const {mongooseQuery,paginationResult}=apiFeatures
-     const subcategories = await mongooseQuery;
+exports.getSubCategories = factory.getAll(SubCategory);
 
-
-  //   .populate({path:'category',select:'name -_id'});
-  res.status(200).json({
-    status: "success",
-    results: subcategories.length,
-    paginationResult,
-    data: subcategories,
-  });
-});
 //@dec Get SubCategory by ID
 //@route GET /api/v1/subCategories/:id
 //@access Public
 
-exports.getSubCategoryById = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return next(new ApiError(404, "Subcategory not found"));
-  }
-
-  const subCategory = await SubCategory.findById(id);
-
-  if (!subCategory) {
-    return next(new ApiError(404, "Subcategory not found"));
-  }
-
-  res.status(200).json({ status: "success", data: subCategory });
-});
+exports.getSubCategoryById = factory.getOne(SubCategory);
 
 // @desc  Update SubCategory
 // @route PUT /api/v1/subCategories/:id
 // @access Private
 
-exports.updateSubCategory = factory.updateOne(SubCategory)
+exports.updateSubCategory = factory.updateOne(SubCategory);
 
 //@desc Delete SubCategory
 //@route DELETE /api/v1/subCategories/:id
 //@access Private
-exports.deleteSubCategory = factory.deleteOne(SubCategory)
+exports.deleteSubCategory = factory.deleteOne(SubCategory);

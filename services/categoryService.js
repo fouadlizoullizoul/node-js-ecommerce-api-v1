@@ -1,55 +1,19 @@
-const slugify = require("slugify");
-const asyncHandler = require("express-async-handler");
-const mongoose = require("mongoose");
 const Category = require("../models/categoryModel");
-const ApiError =require("../utils/ApiError");
-const ApiFeatures = require("../utils/ApiFeatures");
 const factory = require('./handlersFactory')
 
 //@desc Get all Categories
 //@route GET /api/v1/categories
 //@access Public
-exports.getCategories = asyncHandler(async (req, res) => {
-    //Build query
-    const countDocuments = await Category.countDocuments();
-    const apiFeatures = new ApiFeatures(Category.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .search()
-      .paginate(countDocuments);
-    //Execute query
-    const {mongooseQuery,paginationResult}=apiFeatures
-    const categories = await mongooseQuery;
-
-  res.status(200).json({ status: 'success',results: categories.length, paginationResult, data: categories });
-});
+exports.getCategories = factory.getAll(Category)
 //@desc Get Category by ID
 //@route GET /api/v1/categories/:id
 //@access Public
-exports.getCategory = asyncHandler(async (req, res,next) => {
-  const {id} = req.params;
-  if(!mongoose.Types.ObjectId.isValid(id)){
-    return next(new ApiError(404,`category not found with id ${id}`));
-  }
-  const category = await Category.findById(id);
-  if (!category) {
-    return next(new ApiError(404,`category not found with id ${id}`));
-  }
-  res.status(200).json({ status: 'success' ,data: category });
-});
+exports.getCategory = factory.getOne(Category)
 
 //@desc Create Category
 //@route POST /api/v1/categories
 //@access Private
-exports.createCategory = asyncHandler(async (req, res) => {
-  const {name} = req.body;
-  const category = await Category.create({
-    name,
-    slug: slugify(name),
-  });
-  res.status(201).json({ status: 'success',data: category  });
-});
+exports.createCategory = factory.createOne(Category)
 
 //@desc Update Category by ID
 //@route PUT /api/v1/categories/:id

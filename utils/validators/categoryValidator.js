@@ -16,7 +16,11 @@ exports.createCategoryValidator=[
     .isLength({ max: 32 })
     .withMessage("Category name must be at most 32 characters long")
     .matches(/^[a-zA-Z0-9 ]*$/)
-    .withMessage("Category name must contain only letters and numbers"),
+    .withMessage("Category name must contain only letters and numbers")
+    .custom((val,{req})=>{
+        req.body.slug=slugify(val);
+        return true;
+    }),
     validatorMiddleware
 ];
 exports.updateCategoryValidator =[

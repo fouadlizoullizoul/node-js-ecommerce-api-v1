@@ -16,7 +16,11 @@ exports.createBrandValidator=[
     .isLength({ max: 32 })
     .withMessage("Brand name must be at most 32 characters long")
     .matches(/^[a-zA-Z0-9 ]*$/)
-    .withMessage("Brand name must contain only letters and numbers"),
+    .withMessage("Brand name must contain only letters and numbers")
+    .custom((val,{req})=>{
+        req.body.slug=slugify(val);
+        return true;
+    }),
     validatorMiddleware
 ];
 exports.updateBrandValidator =[
